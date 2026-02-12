@@ -1,0 +1,1864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoJob - Local Work Finder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #60a5fa;
+            --accent: #10b981;
+            --accent-gold: #f59e0b;
+            --bg-dark: #0a0a0a;
+            --bg-darker: #000000;
+            --bg-card: #1a1a1a;
+            --bg-card-hover: #252525;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --border: #2a2a2a;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) var(--bg-dark);
+        }
+
+        *::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        *::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-light);
+        }
+
+        /* Animated background gradient */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Grid pattern overlay */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Particle animation background */
+        @keyframes particle-float {
+            0%, 100% { 
+                transform: translate(0, 0) scale(1);
+                opacity: 0.3;
+            }
+            50% { 
+                transform: translate(50px, -50px) scale(1.2);
+                opacity: 0.6;
+            }
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particle-float 15s ease-in-out infinite;
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .particle:nth-child(2) { 
+            animation-delay: 2s; 
+            left: 20%;
+            top: 30%;
+        }
+        .particle:nth-child(3) { 
+            animation-delay: 4s; 
+            left: 80%;
+            top: 20%;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+        .particle:nth-child(4) { 
+            animation-delay: 6s; 
+            left: 60%;
+            top: 70%;
+        }
+        .particle:nth-child(5) { 
+            animation-delay: 8s; 
+            left: 40%;
+            top: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        /* Glowing pulse animation */
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
+            }
+        }
+
+        /* Shake animation for alerts */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        /* Slide in from left */
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Slide in from right */
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Scale in animation */
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Bounce animation */
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-20px);
+            }
+            60% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Rotate continuously */
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Gradient shift animation */
+        @keyframes gradient-shift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Typing cursor animation */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Ripple effect */
+        @keyframes ripple {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        .ripple-effect {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ripple-effect::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 50%;
+            left: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            pointer-events: none;
+        }
+
+        .ripple-effect:active::after {
+            animation: ripple 0.6s ease-out;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            background: var(--bg-darker);
+            padding: 1rem 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent), var(--primary));
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 3s ease infinite;
+        }
+
+        .user-toggle {
+            display: flex;
+            gap: 10px;
+            background: var(--bg-card);
+            padding: 5px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .toggle-btn {
+            border: none;
+            background: transparent;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+        }
+
+        .toggle-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .toggle-btn:hover {
+            color: var(--text-primary);
+        }
+
+        /* --- Main Layout --- */
+        main {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .view-section {
+            display: none; /* Hidden by default */
+            animation: fadeIn 0.3s ease;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Forms --- */
+        .card {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background: var(--bg-darker);
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        button.primary-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button.primary-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button.primary-btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        button.primary-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+        }
+
+        /* --- Job Lists --- */
+        .job-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .job-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .job-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5), 0 0 20px rgba(59, 130, 246, 0.2);
+            border-color: var(--primary);
+            background: var(--bg-card-hover);
+        }
+
+        .job-info h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        .job-meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .distance-badge {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--primary-light);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .status-open { 
+            background: rgba(16, 185, 129, 0.15); 
+            color: var(--accent); 
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .status-progress { 
+            background: rgba(245, 158, 11, 0.15); 
+            color: var(--accent-gold); 
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        /* --- Buttons --- */
+        .btn-apply {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-apply:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-complete {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-left: 5px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-complete:hover {
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-delete {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 2rem;
+        }
+
+        /* --- Auth Pages --- */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-dark);
+            padding: 1rem;
+        }
+
+        .auth-box {
+            background: var(--bg-card);
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid var(--border);
+        }
+
+        .auth-box h1 {
+            margin: 0 0 0.5rem 0;
+            color: var(--text-primary);
+            font-size: 2rem;
+        }
+
+        .auth-box p {
+            margin: 0 0 2rem 0;
+            color: var(--text-secondary);
+        }
+
+        .auth-link {
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .auth-link:hover {
+            color: var(--primary-light);
+            text-decoration: underline;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            color: var(--text-muted);
+            position: relative;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* --- Home Page --- */
+        .home-page {
+            min-height: 100vh;
+            background: var(--bg-darker);
+        }
+
+        .home-nav {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .home-nav .logo {
+            color: white;
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent), var(--primary));
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 3s ease infinite;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-outline::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-outline:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-outline:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .btn-solid {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-solid::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-solid:hover::before {
+            left: 100%;
+        }
+
+        .btn-solid:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.4);
+            background: var(--primary-dark);
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            color: white;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
+                var(--bg-darker);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(180deg, transparent 0%, var(--bg-darker) 100%);
+            pointer-events: none;
+        }
+
+        /* Floating elements animation */
+        .hero::after {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -250px;
+            right: -250px;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
+        }
+
+        .hero-content {
+            max-width: 900px;
+            animation: fadeInUp 1s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            margin: 0 0 1rem 0;
+            font-weight: 900;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #ffffff 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -2px;
+        }
+
+        .hero .subtitle {
+            font-size: 1.5rem;
+            margin: 0 0 2.5rem 0;
+            color: var(--text-secondary);
+            font-weight: 500;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            animation: fadeInUp 1s ease forwards;
+            opacity: 0;
+        }
+
+        .stat-item:nth-child(1) {
+            animation-delay: 0.3s;
+        }
+
+        .stat-item:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .stat-item:nth-child(3) {
+            animation-delay: 0.7s;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+            transition: transform 0.3s;
+        }
+
+        .stat-item:hover .stat-number {
+            transform: scale(1.1);
+            animation: bounce 0.6s;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-hero {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-hero-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-hero-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.4);
+            background: var(--primary-dark);
+        }
+
+        .btn-hero-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-hero-secondary:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--primary);
+        }
+
+        .features {
+            background: var(--bg-dark);
+            padding: 5rem 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin: 0 0 3rem 0;
+            color: var(--text-primary);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 12px;
+            transition: all 0.3s;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            animation: slideInLeft 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        .feature-card:nth-child(1) { animation-delay: 0.1s; }
+        .feature-card:nth-child(2) { animation-delay: 0.2s; }
+        .feature-card:nth-child(3) { animation-delay: 0.3s; }
+        .feature-card:nth-child(4) { animation-delay: 0.4s; }
+        .feature-card:nth-child(5) { animation-delay: 0.5s; }
+        .feature-card:nth-child(6) { animation-delay: 0.6s; }
+
+        .feature-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border-color: var(--primary);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            filter: grayscale(0.3);
+            display: inline-block;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.2) rotate(5deg);
+            filter: grayscale(0);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin: 0 0 1rem 0;
+            color: var(--text-primary);
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .cta-section {
+            background: var(--bg-darker);
+            padding: 5rem 2rem;
+            text-align: center;
+            color: white;
+            border-top: 1px solid var(--border);
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin: 0 0 1rem 0;
+        }
+
+        .cta-section p {
+            font-size: 1.2rem;
+            margin: 0 0 2rem 0;
+            color: var(--text-secondary);
+        }
+
+        /* How it works section */
+        .how-it-works {
+            background: var(--bg-card);
+            padding: 5rem 2rem;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .how-it-works-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .how-it-works h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin: 0 0 1rem 0;
+            color: var(--text-primary);
+        }
+
+        .how-it-works .subtitle-text {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 4rem;
+            font-size: 1.1rem;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .step-card {
+            text-align: center;
+            position: relative;
+            animation: scaleIn 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        .step-card:nth-child(1) { animation-delay: 0.2s; }
+        .step-card:nth-child(2) { animation-delay: 0.4s; }
+        .step-card:nth-child(3) { animation-delay: 0.6s; }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+            animation: pulse-glow 2s ease-in-out infinite;
+            transition: transform 0.3s;
+        }
+
+        .step-card:hover .step-number {
+            transform: scale(1.15) rotate(360deg);
+            transition: transform 0.6s;
+        }
+
+        .step-card h3 {
+            color: var(--text-primary);
+            margin: 0 0 0.5rem 0;
+            font-size: 1.3rem;
+        }
+
+        .step-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Image showcase section */
+        .image-showcase {
+            background: var(--bg-dark);
+            padding: 5rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .showcase-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .showcase-text h2 {
+            font-size: 2.5rem;
+            margin: 0 0 1rem 0;
+            color: var(--text-primary);
+        }
+
+        .showcase-text p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .showcase-image {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            aspect-ratio: 16/10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .showcase-image::before {
+            content: '🎯';
+            font-size: 5rem;
+            opacity: 0.3;
+        }
+
+        /* Testimonials */
+        .testimonials {
+            background: var(--bg-darker);
+            padding: 5rem 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .testimonials-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .testimonials h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin: 0 0 3rem 0;
+            color: var(--text-primary);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .testimonial-card {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+            animation: slideInRight 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        .testimonial-card:nth-child(1) { animation-delay: 0.2s; }
+        .testimonial-card:nth-child(2) { animation-delay: 0.4s; }
+        .testimonial-card:nth-child(3) { animation-delay: 0.6s; }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .testimonial-text {
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            transition: transform 0.3s;
+        }
+
+        .testimonial-card:hover .author-avatar {
+            transform: rotate(360deg) scale(1.1);
+        }
+
+        .author-info h4 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .author-info p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Stats banner */
+        .stats-banner {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            padding: 3rem 2rem;
+            margin: 5rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shine 3s ease-in-out infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .stats-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .stat-box h3 {
+            font-size: 3rem;
+            margin: 0;
+            color: white;
+            font-weight: 900;
+            animation: scaleIn 0.8s ease forwards;
+            opacity: 0;
+        }
+
+        .stat-box:nth-child(1) h3 { animation-delay: 0.2s; }
+        .stat-box:nth-child(2) h3 { animation-delay: 0.4s; }
+        .stat-box:nth-child(3) h3 { animation-delay: 0.6s; }
+        .stat-box:nth-child(4) h3 { animation-delay: 0.8s; }
+
+        .stat-box p {
+            margin: 0.5rem 0 0 0;
+            color: rgba(255,255,255,0.9);
+            font-weight: 500;
+            animation: fadeInUp 0.8s ease forwards;
+            opacity: 0;
+        }
+
+        .stat-box:nth-child(1) p { animation-delay: 0.3s; }
+        .stat-box:nth-child(2) p { animation-delay: 0.5s; }
+        .stat-box:nth-child(3) p { animation-delay: 0.7s; }
+        .stat-box:nth-child(4) p { animation-delay: 0.9s; }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .hero .subtitle {
+                font-size: 1.2rem;
+            }
+            .home-nav .logo {
+                font-size: 1.5rem;
+            }
+            .showcase-container {
+                grid-template-columns: 1fr;
+            }
+            .hero-stats {
+                gap: 1.5rem;
+            }
+            .stat-number {
+                font-size: 2rem;
+            }
+            .nav-buttons {
+                gap: 0.5rem;
+            }
+            .btn-outline, .btn-solid {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Home Page -->
+    <div id="home-page" class="home-page">
+        <nav class="home-nav">
+            <div class="logo">GeoJob</div>
+            <div class="nav-buttons">
+                <button class="btn-outline" onclick="showSignIn()">Sign In</button>
+                <button class="btn-solid" onclick="showSignUp()">Get Started</button>
+            </div>
+        </nav>
+
+        <section class="hero">
+            <div class="particle" style="left: 10%; top: 20%;"></div>
+            <div class="particle" style="left: 20%; top: 30%;"></div>
+            <div class="particle" style="left: 80%; top: 20%;"></div>
+            <div class="particle" style="left: 60%; top: 70%;"></div>
+            <div class="particle" style="left: 40%; top: 50%;"></div>
+            <div class="hero-content">
+                <h1>Find Local Work<br>Near You</h1>
+                <p class="subtitle">Connect with nearby opportunities or find skilled workers in your area. GeoJob makes local hiring simple, fast, and efficient.</p>
+                <div class="hero-buttons">
+                    <button class="btn-hero btn-hero-primary" onclick="showSignUp()">Get Started Free</button>
+                    <button class="btn-hero btn-hero-secondary" onclick="scrollToFeatures()">See How It Works</button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">10K+</span>
+                        <span class="stat-label">Active Jobs</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">25K+</span>
+                        <span class="stat-label">Workers</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">98%</span>
+                        <span class="stat-label">Satisfaction Rate</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="how-it-works">
+            <div class="how-it-works-container">
+                <h2>How It Works</h2>
+                <p class="subtitle-text">Get started in three simple steps</p>
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <h3>Create Account</h3>
+                        <p>Sign up for free in seconds. Choose whether you want to find work or hire workers.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <h3>Post or Browse</h3>
+                        <p>Post a job with your location or browse nearby opportunities sorted by distance.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <h3>Connect & Work</h3>
+                        <p>Match with the right person, agree on terms, and get the job done efficiently.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="stats-banner">
+            <div class="stats-container">
+                <div class="stat-box">
+                    <h3>$2M+</h3>
+                    <p>Total Earnings Paid</p>
+                </div>
+                <div class="stat-box">
+                    <h3>15K+</h3>
+                    <p>Jobs Completed</p>
+                </div>
+                <div class="stat-box">
+                    <h3>50+</h3>
+                    <p>Cities Covered</p>
+                </div>
+                <div class="stat-box">
+                    <h3>4.9★</h3>
+                    <p>Average Rating</p>
+                </div>
+            </div>
+        </div>
+
+        <section class="image-showcase">
+            <div class="showcase-container">
+                <div class="showcase-text">
+                    <h2>Work Smarter, Not Harder</h2>
+                    <p>Our intelligent matching algorithm connects you with the best opportunities in your area. No more endless searching or long commutes.</p>
+                    <p>Whether you're looking for a quick gig or a long-term project, GeoJob helps you find the perfect match within minutes.</p>
+                    <button class="btn-hero btn-hero-primary" onclick="showSignUp()">Start Now</button>
+                </div>
+                <div class="showcase-image">
+                    <!-- Placeholder for image -->
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonials">
+            <div class="testimonials-container">
+                <h2>What Our Users Say</h2>
+                <div class="testimonials-grid">
+                    <div class="testimonial-card">
+                        <p class="testimonial-text">"GeoJob changed my freelance career. I found three local clients in my first week. The location-based matching is genius!"</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">S</div>
+                            <div class="author-info">
+                                <h4>Sarah Martinez</h4>
+                                <p>Graphic Designer</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <p class="testimonial-text">"As a small business owner, finding reliable workers was always a challenge. GeoJob made it incredibly easy. Highly recommended!"</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">M</div>
+                            <div class="author-info">
+                                <h4>Michael Chen</h4>
+                                <p>Business Owner</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <p class="testimonial-text">"The app is so intuitive! I posted a job and had five applicants within an hour. Found the perfect person for the task."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">E</div>
+                            <div class="author-info">
+                                <h4>Emily Rodriguez</h4>
+                                <p>Homeowner</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features" id="features-section">
+            <div class="features-container">
+                <h2>Why Choose GeoJob?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📍</div>
+                        <h3>Location-Based</h3>
+                        <p>Find jobs within walking distance or across your city. Our smart algorithm shows you the nearest opportunities first.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Instant Matching</h3>
+                        <p>Post a job and get responses within minutes. Apply to jobs and hear back fast. No waiting around.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💼</div>
+                        <h3>Flexible Work</h3>
+                        <p>From quick tasks to ongoing projects. Find work that fits your schedule and skills perfectly.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <h3>Safe & Secure</h3>
+                        <p>Verified users, secure payments, and reliable reviews. Your safety is our top priority.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💰</div>
+                        <h3>Fair Pricing</h3>
+                        <p>No hidden fees. Workers keep more of what they earn. Employers pay only what's fair.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h3>Easy to Use</h3>
+                        <p>Simple interface works on any device. Post jobs or apply in seconds, not hours.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <h2>Ready to Get Started?</h2>
+            <p>Join thousands of workers and employers finding success on GeoJob</p>
+            <button class="btn-hero btn-hero-primary" onclick="showSignUp()">Create Free Account</button>
+        </section>
+    </div>
+
+    <!-- Authentication Pages -->
+    <div id="auth-container" class="auth-container hidden">
+        <!-- Sign In Page -->
+        <div id="signin-page" class="auth-box">
+            <h1>Welcome Back</h1>
+            <p>Sign in to find local work or post jobs</p>
+            
+            <form onsubmit="handleSignIn(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="signin-email" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signin-password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="primary-btn">Sign In</button>
+            </form>
+
+            <div class="divider">or</div>
+
+            <p style="text-align: center; margin: 0;">
+                Don't have an account? 
+                <a class="auth-link" onclick="showSignUp()">Create Account</a>
+            </p>
+        </div>
+
+        <!-- Sign Up Page -->
+        <div id="signup-page" class="auth-box hidden">
+            <h1>Create Account</h1>
+            <p>Join GeoJob to get started</p>
+            
+            <form onsubmit="handleSignUp(event)">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="signup-name" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="signup-email" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signup-password" placeholder="Create a password" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label>I want to:</label>
+                    <select id="signup-role" required>
+                        <option value="">Select an option</option>
+                        <option value="poster">Post jobs and hire workers</option>
+                        <option value="seeker">Find work near me</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div>
+                <button type="submit" class="primary-btn">Create Account</button>
+            </form>
+
+            <div class="divider">or</div>
+
+            <p style="text-align: center; margin: 0;">
+                Already have an account? 
+                <a class="auth-link" onclick="showSignIn()">Sign In</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Main App (Hidden until logged in) -->
+    <div id="main-app" class="hidden">
+    <nav>
+        <div class="logo">GeoJob</div>
+        <div class="user-toggle">
+            <button class="toggle-btn active" onclick="switchRole('poster')">Post a Job</button>
+            <button class="toggle-btn" onclick="switchRole('seeker')">Find Work</button>
+        </div>
+        <button class="toggle-btn" onclick="logout()" style="background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3);">Logout</button>
+    </nav>
+
+    <main>
+        <div id="poster-view" class="view-section active">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h1 style="font-size: 2.5rem; margin: 0 0 0.5rem 0; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Post a Job</h1>
+                <p style="color: var(--text-secondary); margin: 0;">Fill out the form below to post a new job request</p>
+            </div>
+            <div class="card">
+                <h2 style="margin-top: 0;">Job Details</h2>
+                <div class="form-group">
+                    <label>Job Title *</label>
+                    <input type="text" id="jobTitle" placeholder="e.g., Fix my leaky faucet, Walk my dog, Design a logo">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="jobDesc" rows="4" placeholder="Provide detailed information about the job, requirements, and expectations..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Location (Simulated Coordinates)</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <input type="number" step="0.0001" id="jobLat" placeholder="Latitude" value="40.7128">
+                        <input type="number" step="0.0001" id="jobLong" placeholder="Longitude" value="-74.0060">
+                    </div>
+                    <small style="color: var(--text-muted); margin-top: 0.5rem; display: block;">📍 In a real app, this would auto-detect your location</small>
+                </div>
+                <button class="primary-btn" onclick="postJob()">📤 Post Job</button>
+            </div>
+
+            <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+                <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">📋 My Posted Jobs</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Manage and track your job postings</p>
+            </div>
+            <div id="poster-job-list" class="job-list">
+                </div>
+        </div>
+
+        <div id="seeker-view" class="view-section">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h1 style="font-size: 2.5rem; margin: 0 0 0.5rem 0; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Find Work</h1>
+                <p style="color: var(--text-secondary); margin: 0;">Discover jobs near your location</p>
+            </div>
+            <div class="card" style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3);">
+                <h3>📍 You are here</h3>
+                <p style="margin:0; color: var(--text-secondary);">
+                    Your simulated location: <strong style="color: var(--primary-light);">Lat 40.7306, Long -73.9352</strong>
+                </p>
+            </div>
+
+            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+                <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">🎯 Nearest 5 Jobs</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Jobs sorted by distance from your location</p>
+            </div>
+            <div id="seeker-job-list" class="job-list">
+                </div>
+        </div>
+    </main>
+    </div> <!-- End of main-app -->
+
+    <script>
+        // --- AUTH STATE ---
+        let currentUser = null;
+        let usersDB = [
+            { id: 1, name: "Demo User", email: "demo@geojob.com", password: "demo123", role: "both" }
+        ];
+
+        // Smooth scroll to features
+        function scrollToFeatures() {
+            document.getElementById('features-section').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+
+        // Show/Hide Auth Pages
+        function showSignIn() {
+            document.getElementById('home-page').classList.add('hidden');
+            document.getElementById('auth-container').classList.remove('hidden');
+            document.getElementById('signin-page').classList.remove('hidden');
+            document.getElementById('signup-page').classList.add('hidden');
+        }
+
+        function showSignUp() {
+            document.getElementById('home-page').classList.add('hidden');
+            document.getElementById('auth-container').classList.remove('hidden');
+            document.getElementById('signup-page').classList.remove('hidden');
+            document.getElementById('signin-page').classList.add('hidden');
+        }
+
+        function backToHome() {
+            document.getElementById('home-page').classList.remove('hidden');
+            document.getElementById('auth-container').classList.add('hidden');
+            document.getElementById('main-app').classList.add('hidden');
+        }
+
+        function handleSignIn(event) {
+            event.preventDefault();
+            const email = document.getElementById('signin-email').value;
+            const password = document.getElementById('signin-password').value;
+
+            const user = usersDB.find(u => u.email === email && u.password === password);
+            
+            if(user) {
+                currentUser = user;
+                document.getElementById('auth-container').classList.add('hidden');
+                document.getElementById('home-page').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                alert(`Welcome back, ${user.name}!`);
+            } else {
+                alert('Invalid email or password');
+            }
+        }
+
+        function handleSignUp(event) {
+            event.preventDefault();
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const role = document.getElementById('signup-role').value;
+
+            // Check if email exists
+            if(usersDB.find(u => u.email === email)) {
+                alert('Email already registered');
+                return;
+            }
+
+            const newUser = {
+                id: Date.now(),
+                name: name,
+                email: email,
+                password: password,
+                role: role
+            };
+
+            usersDB.push(newUser);
+            currentUser = newUser;
+
+            document.getElementById('auth-container').classList.add('hidden');
+            document.getElementById('home-page').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            alert(`Account created! Welcome, ${name}!`);
+        }
+
+        function logout() {
+            if(confirm('Are you sure you want to logout?')) {
+                currentUser = null;
+                document.getElementById('main-app').classList.add('hidden');
+                document.getElementById('home-page').classList.remove('hidden');
+                
+                // Clear forms
+                document.getElementById('signin-email').value = '';
+                document.getElementById('signin-password').value = '';
+            }
+        }
+
+        // --- 1. MOCK DATABASE (Simulating SQL Tables) ---
+        
+        // This simulates the 'Users' location (The Seeker)
+        const currentUserLocation = { lat: 40.7306, long: -73.9352 }; 
+
+        // This simulates the 'Jobs' table
+        let jobsDB = [
+            { id: 1, title: "Paint my fence", status: "OPEN", lat: 40.7128, long: -74.0060 }, // 8km away
+            { id: 2, title: "Walk my dog", status: "OPEN", lat: 40.7350, long: -73.9400 },   // Very close
+            { id: 3, title: "Fix Computer", status: "IN_PROGRESS", lat: 40.7400, long: -73.9500 },
+        ];
+
+        // --- 2. CORE FUNCTIONS ---
+
+        // Switch between Poster and Seeker tabs
+        function switchRole(role) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn').forEach(el => el.classList.remove('active'));
+
+            if(role === 'poster') {
+                document.getElementById('poster-view').classList.add('active');
+                document.querySelector('button[onclick="switchRole(\'poster\')"]').classList.add('active');
+                renderPosterJobs();
+            } else {
+                document.getElementById('seeker-view').classList.add('active');
+                document.querySelector('button[onclick="switchRole(\'seeker\')"]').classList.add('active');
+                renderSeekerJobs();
+            }
+        }
+
+        // --- 3. POSTER LOGIC ---
+
+        function postJob() {
+            const title = document.getElementById('jobTitle').value;
+            const lat = parseFloat(document.getElementById('jobLat').value);
+            const long = parseFloat(document.getElementById('jobLong').value);
+
+            if(!title) return alert("Please enter a title");
+
+            const newJob = {
+                id: Date.now(), // Simple unique ID
+                title: title,
+                status: "OPEN",
+                lat: lat,
+                long: long
+            };
+
+            jobsDB.push(newJob);
+            alert("Job Posted Successfully!");
+            document.getElementById('jobTitle').value = "";
+            renderPosterJobs();
+        }
+
+        // Render jobs for the person who posted them
+        function renderPosterJobs() {
+            const container = document.getElementById('poster-job-list');
+            container.innerHTML = "";
+
+            if(jobsDB.length === 0) {
+                container.innerHTML = "<div class='empty-state'>No active jobs found.</div>";
+                return;
+            }
+
+            jobsDB.forEach(job => {
+                const div = document.createElement('div');
+                div.className = 'job-card';
+                div.innerHTML = `
+                    <div class="job-info">
+                        <h3>${job.title}</h3>
+                        <div class="job-meta">
+                            <span class="status-badge ${job.status === 'OPEN' ? 'status-open' : 'status-progress'}">${job.status}</span>
+                            <span>ID: ${job.id}</span>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-complete" onclick="markCompleted(${job.id})">Mark Complete</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // The "Complete" Action -> Deletes from Database
+        function markCompleted(id) {
+            if(confirm("Marking this as complete will remove it from the database. Proceed?")) {
+                // Filter out the job (Simulates DELETE FROM Jobs WHERE id = X)
+                jobsDB = jobsDB.filter(job => job.id !== id);
+                renderPosterJobs();
+            }
+        }
+
+        // --- 4. SEEKER LOGIC (Nearest Neighbor) ---
+
+        // Haversine Formula: Calculates distance between two Lat/Long points in Meters
+        function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+            var R = 6371; // Radius of the earth in km
+            var dLat = deg2rad(lat2-lat1);  
+            var dLon = deg2rad(lon2-lon1); 
+            var a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+            var d = R * c; // Distance in km
+            return d;
+        }
+
+        function deg2rad(deg) {
+            return deg * (Math.PI/180)
+        }
+
+        function renderSeekerJobs() {
+            const container = document.getElementById('seeker-job-list');
+            container.innerHTML = "";
+
+            // 1. Calculate distance for every job
+            const jobsWithDistance = jobsDB.map(job => {
+                const dist = getDistanceFromLatLonInKm(
+                    currentUserLocation.lat, currentUserLocation.long,
+                    job.lat, job.long
+                );
+                return { ...job, distance: dist };
+            });
+
+            // 2. Sort by distance (Nearest first)
+            jobsWithDistance.sort((a, b) => a.distance - b.distance);
+
+            // 3. Take top 5 and Render
+            const nearest5 = jobsWithDistance.slice(0, 5);
+
+            if(nearest5.length === 0) {
+                container.innerHTML = "<div class='empty-state'>No jobs found nearby.</div>";
+                return;
+            }
+
+            nearest5.forEach(job => {
+                const div = document.createElement('div');
+                div.className = 'job-card';
+                div.innerHTML = `
+                    <div class="job-info">
+                        <h3>${job.title}</h3>
+                        <div class="job-meta">
+                            <span class="distance-badge">${job.distance.toFixed(2)} km away</span>
+                            <span class="status-badge ${job.status === 'OPEN' ? 'status-open' : 'status-progress'}">${job.status}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn-apply" onclick="applyJob(${job.id})">Apply</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function applyJob(id) {
+            // In a real app, this sends an INSERT to the 'Job_Applications' table
+            alert(`Application sent for Job ID: ${id}. The poster will review it.`);
+        }
+
+        // Initialize view
+        renderPosterJobs();
+
+    </script>
+</body>
+</html>
